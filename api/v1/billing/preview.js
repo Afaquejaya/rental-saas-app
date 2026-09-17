@@ -1,0 +1,4 @@
+import { buildPreview, fail } from "lib/billing.js";
+export const access="public";
+export const methods=["POST"];
+export default async function(req,res){try{const data=await buildPreview(req.body||{});return res.json({success:true,data:{billing_period:data.billing_period,due_date:data.due_date,items:data.items,subtotal:data.subtotal,adjustments:data.adjustments,total:data.total,rent:{amount:data.items[0].amount,rent_history_id:data.rent.id,monthly_rent:data.rent.monthly_rent,proration:data.proration},utilities:{electricity:data.utilities.electricity,water:data.utilities.water},warnings:data.warnings,errors:data.errors},message:"Billing preview calculated successfully"});}catch(e){return res.status(e.httpStatus||400).json({success:false,error:{code:e.code||"INTERNAL_ERROR",message:e.message||"Unable to calculate billing preview"}})}}
