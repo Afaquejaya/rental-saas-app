@@ -1,0 +1,4 @@
+import { db } from "hatchable";
+import { isUuid } from "lib/billing.js";
+export const access="public"; export const methods=["GET"];
+export default async function(req,res){try{const id=req.params.id;if(!isUuid(id))return res.status(400).json({success:false,error:{code:"VALIDATION_ERROR",message:"Invalid invoice id"}});const {rows}=await db.query(`SELECT p.* FROM payments p WHERE p.invoice_id=$1 ORDER BY p.payment_date,p.created_at`,[id]);return res.json({success:true,data:rows,message:"OK"});}catch(e){return res.status(500).json({success:false,error:{code:"INTERNAL_ERROR",message:"Unable to fetch invoice payments"}})}}
