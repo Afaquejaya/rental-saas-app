@@ -1,0 +1,3 @@
+import { isUuid, balance } from "lib/billing.js";
+export const access="public"; export const methods=["GET"];
+export default async function(req,res){try{const id=req.params.id;if(!isUuid(id))return res.status(400).json({success:false,error:{code:"VALIDATION_ERROR",message:"Invalid invoice id"}});return res.json({success:true,data:await balance(id),message:"Balance calculated successfully"});}catch(e){return res.status(e.httpStatus||500).json({success:false,error:{code:e.code||"INTERNAL_ERROR",message:e.message||"Unable to calculate invoice balance"}})}}
