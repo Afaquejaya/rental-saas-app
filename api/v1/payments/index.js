@@ -1,0 +1,14 @@
+import { db } from "hatchable";
+import { isUuid, moneyMinor, moneyFromMinor } from "lib/billing.js";
+export const access="public"; export const methods=["GET","POST"];
+const fail=(res,s,c,m)=>res.status(s).json({success:false,error:{code:c,message:m}});
+export default async function(req,res){try{
+ if(req.method==='GET'){const {rows}=await db.query(`SELECT p.*,i.invoice_number FROM payments p JOIN invoices i ON i.id=p.invoice_id ORDER BY p.payment_date DESC,p.created_at DESC`);return res.json({success:true,data:rows,message:'OK'});}
+ const b=req.body||{};if(!isUuid(b.invoice_id)||b.amount===undefined||!b.payment_date||!b.payment_method)return fail(res,400,'VALIDATION_ERROR','invoice_id, amount, payment_date and payment_method are required');
+ const amount=moneyMinor(b.amount);if(amount<=0n)return fail(res,400,'VALIDATION_ERROR','Payment amount must be greater than zero');const methods=['cash','bank_transfer','upi','card','other'];if(!methods.includes(b.payment_method))return fail(res,400,'VALIDATION_ERROR','Invalid payment_method');
+ const current=await db.query(`SELECT id,total,amount_paid FROM invoices WHERE id=$1`,[b.invoice_id]);const inv=current.rows[0];if(!inv)return fail(res,404,'INVOICE_NOT_FOUND','Invoice not found');
+ const paid=moneyMinor(inv.amount_paid),total=moneyMinor(inv.total);if(paid+amount>total)return fail(res,400,'OVERPAYMENT_NOT_ALLOWED','Payment exceeds the invoice outstanding balance');
+ const newPaid=paid+amount,newDue=total-newPaid,status=newDue===0n?'paid':'partially_paid';
+ const tx=[{sql:`UPDATE invoices SET amount_paid=$2,amount_due=$3,status=$4 WHERE id=$1 AND amount_paid=$5 AND amount_due=$6 RETURNING id,total,amount_paid,amount_due,status`,params:[b.invoice_id,moneyFromMinor(newPaid),moneyFromMinor(newDue),status,moneyFromMinor(paid),moneyFromMinor(total-paid)]},{sql:`INSERT INTO payments (invoice_id,amount,payment_date,payment_method,transaction_reference,notes) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,params:[b.invoice_id,moneyFromMinor(amount),b.payment_date,b.payment_method,b.transaction_reference||null,b.notes||null]}];
+ const committed=await db.transaction(tx);if(!committed.results[0].rows[0])return fail(res,409,'PAYMENT_CONFLICT','Invoice balance changed; retry payment');return res.status(201).json({success:true,data:{payment:committed.results[1].rows[0],total:moneyFromMinor(total),amount_paid:moneyFromMinor(newPaid),amount_due:moneyFromMinor(newDue),status},message:'Payment recorded successfully'});
+ }catch(e){return fail(res,e?.code==='23505'?409:(e.httpStatus||500),e?.code==='23505'?'DUPLICATE_REFERENCE':(e.code||'INTERNAL_ERROR'),e?.code==='23505'?'Transaction reference already exists':(e.message||'Unable to process payment'))}}
