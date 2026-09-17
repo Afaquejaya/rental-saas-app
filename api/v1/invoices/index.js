@@ -1,0 +1,3 @@
+import { db } from "hatchable";
+export const access="public";export const methods=["GET"];
+export default async function(req,res){try{const {rows}=await db.query(`SELECT i.*,l.tenant_id,l.unit_id,t.name AS tenant_name,u.unit_number,p.name AS property_name FROM invoices i JOIN leases l ON l.id=i.lease_id JOIN tenants t ON t.id=l.tenant_id JOIN units u ON u.id=l.unit_id JOIN properties p ON p.id=u.property_id ORDER BY i.due_date DESC`);return res.json({success:true,data:rows,message:"OK"})}catch(e){return res.status(500).json({success:false,error:{code:"INTERNAL_ERROR",message:"Unable to fetch invoices"}})}}
