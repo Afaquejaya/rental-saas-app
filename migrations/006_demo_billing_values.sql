@@ -1,0 +1,1 @@
+UPDATE utility_rates SET rate_per_unit=20,fixed_charge=0 WHERE id='77777777-7777-4777-8777-777777777772';
