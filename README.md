@@ -1,5 +1,9 @@
 # Rental Property Management
 
+## Dashboard Preview
+<div style="display:flex;">
+<img alt="App image" src="https://github.com/Afaquejaya/rental-saas-app/blob/main/dashboard.png"></div>
+
 ## Step 3 — deterministic billing engine
 
 Step 2's domain schema is preserved. Step 3 adds a centralized server-side billing engine using Hatchable JavaScript API functions + managed PostgreSQL. Flutter, Python/FastAPI, Docker Compose, SQLAlchemy and Alembic remain documented as the external repository architecture; they are not executed inside Hatchable.
