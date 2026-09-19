@@ -6,8 +6,6 @@ The application is built around an authenticated owner/manager workspace with se
 
 ## Dashboard
 
-![Rental Property Management Dashboard](https://rental-property.hatchable.site/)
-
 > Live application: https://rental-property.hatchable.site
 
 ---
