@@ -3,7 +3,7 @@
 A full-stack rental property management SaaS designed to centralize property, unit, tenant, lease, billing, payment, maintenance, document, expense, reconciliation, reporting, notification, and AI-assisted workflows in one application.
 
 
-![Rental Property Management Dashboard](https://rental-property.hatchable.site/dashboard.png)
+![Rental Property Management Dashboard](https://github.com/Afaquejaya/rental-saas-app/blob/main/dashboard.png)
 
 
 The application is built around an authenticated owner/manager workspace with server-side APIs and a PostgreSQL-backed rental domain. It is designed to replace fragmented spreadsheets, manual calculations, disconnected payment records, messaging threads, and separate maintenance workflows with one connected operational system.
